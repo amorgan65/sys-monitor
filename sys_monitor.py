@@ -18,7 +18,7 @@ async def fetchData():
 
     time = getTime()
 
-    data = (cpu, ram, disk, temp, time)
+    data = (cpu, temp, ram, disk, time)
     return data
 
 #def connectDB():
