@@ -25,7 +25,8 @@ async def getTemp():
     """ Gets system CPU temperature """
     try:
         temp = psutil.sensors_temperatures()['cpu_thermal'][0].current
-        print(f'Temperatures are: {temp}')
+        degree = u'\N{DEGREE SIGN}'
+        print(f'Temperatures are: {temp}{degree}C')
         return temp
     except AttributeError:
         pass
