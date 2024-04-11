@@ -1,7 +1,52 @@
 import psutil
 import asyncio
-
+#TODO: import datetime and include timestamp of when data was recorded also
+import datetime
 #TODO: make database to write info to
+import mariadb
+
+
+async def fetchData():
+    cpuTask = asyncio.create_task(getCPU())
+    ramTask = asyncio.create_task(getRAM())
+    diskTask = asyncio.create_task(getDisk())
+    tempTask = asyncio.create_task(getTemp())
+
+    cpu = await cpuTask
+    ram = await ramTask
+    disk = await diskTask
+    temp = await tempTask
+
+    data = (cpu, ram, disk, temp)
+    return data
+
+def insertRecord(cur, data):
+    """ Inserts the recent system information into system table """
+    cpu, ram, disk, temp, date = data[0], data[1], data[2], data[3], data[4]
+    
+    #NOTE: maybe INSERT INTO sys_stats.system(cpu_usage, cpu_temp, ram_usage, disk_usage, date) VALUES (?, ?, ?, ?, ?)", (cpu, temp, ram, disk, temp, date))
+    cur.execute("INSERT INTO sys_stats.system(cpu, temp, ram, disk, date) VALUES (?, ?, ?, ?, ?)", (cpu, temp, ram, disk, date))
+
+def connectDB():
+    try:
+        conn = mariadb.connect(
+            host='localhost',
+            port=3306,
+            user='alec',
+            password='USER_PASSWORD')
+
+        cur = conn.cursor()
+        return cur
+
+    except mariadb.Error as e:
+        print(f'Error connecting to the database: {e}')
+        sys.exit(1)
+
+
+def getTime():
+    """ Gets current time """
+    date = 0 #get current date
+    return date
 
 async def getCPU():
     """ Get usage of the CPU """
@@ -32,23 +77,15 @@ async def getTemp():
         pass
 
 
-def insert_database(cpu, ram, disk, temp):
-    print(f'cpu: {cpu}, ram: {ram}, disk: {disk}, temp: {temp}')
-    return
+async def main(): #NOTE: maybe remove async here?
+    dataTask = asyncio.create_task(fetchData())
+    data = await dataTask
 
-
-async def main():
-    cpuTask = asyncio.create_task(getCPU())
-    ramTask = asyncio.create_task(getRAM())
-    diskTask = asyncio.create_task(getDisk())
-    tempTask = asyncio.create_task(getTemp())
-
-    cpu = await cpuTask
-    ram = await ramTask
-    disk = await diskTask
-    temp = await tempTask
-
-    insert_database(cpu, ram, disk, temp)
+    cursor = connectDB()
+    
+    insertRecord(cursor, data)
+    #insert_database(cpu, ram, disk, temp)
+    
     
 
 if __name__ == "__main__":
