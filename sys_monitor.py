@@ -2,7 +2,7 @@ import asyncio
 import datetime
 
 import psutil
-import mysql.connector
+from mysql.connector import connect, Error
 
 
 async def fetchData():
@@ -21,13 +21,6 @@ async def fetchData():
     data = (cpu, ram, disk, temp, time)
     return data
 
-#def insertRecord(cur, data):
-#    """ Inserts the recent system information into system table """
-#    cpu, ram, disk, temp, date = data[0], data[1], data[2], data[3], data[4]
-#    
-#    #NOTE: maybe INSERT INTO sys_stats.system(cpu_usage, cpu_temp, ram_usage, disk_usage, date) VALUES (?, ?, ?, ?, ?)", (cpu, temp, ram, disk, temp, date))
-#    cur.execute("INSERT INTO sys_stats.system(cpu, temp, ram, disk, date) VALUES (?, ?, ?, ?, ?)", (cpu, temp, ram, disk, date))
-
 def connectDB():
     conn = mysql.connector.connect(
         user='alec',
@@ -39,6 +32,26 @@ def connectDB():
     conn.close()
     return
 
+'''
+try:
+    with connect(
+        host='localhost',
+        user='alec',
+        password='USER_PASSWORD',
+        database='sys_stats'
+        ) as connection:
+            #make insert query here?
+            with connection.cursor() as cursor:
+                cursor.execute(insert_system_query)
+except Error as e:
+    print(e)
+
+'''
+
+insert_system_query = """
+INSERT INTO system (cpu_usage, cpu_temp, ram_usage, disk_usage, date)
+VALUES (data[0], data[3], data[1], data[2], data[4])
+"""
 
 def getTime():
     """ Gets current time """
