@@ -3,7 +3,7 @@ import asyncio
 #TODO: import datetime and include timestamp of when data was recorded also
 import datetime
 #TODO: make database to write info to
-import mariadb
+import mysql.connector
 
 
 async def fetchData():
@@ -20,27 +20,23 @@ async def fetchData():
     data = (cpu, ram, disk, temp)
     return data
 
-def insertRecord(cur, data):
-    """ Inserts the recent system information into system table """
-    cpu, ram, disk, temp, date = data[0], data[1], data[2], data[3], data[4]
-    
-    #NOTE: maybe INSERT INTO sys_stats.system(cpu_usage, cpu_temp, ram_usage, disk_usage, date) VALUES (?, ?, ?, ?, ?)", (cpu, temp, ram, disk, temp, date))
-    cur.execute("INSERT INTO sys_stats.system(cpu, temp, ram, disk, date) VALUES (?, ?, ?, ?, ?)", (cpu, temp, ram, disk, date))
+#def insertRecord(cur, data):
+#    """ Inserts the recent system information into system table """
+#    cpu, ram, disk, temp, date = data[0], data[1], data[2], data[3], data[4]
+#    
+#    #NOTE: maybe INSERT INTO sys_stats.system(cpu_usage, cpu_temp, ram_usage, disk_usage, date) VALUES (?, ?, ?, ?, ?)", (cpu, temp, ram, disk, temp, date))
+#    cur.execute("INSERT INTO sys_stats.system(cpu, temp, ram, disk, date) VALUES (?, ?, ?, ?, ?)", (cpu, temp, ram, disk, date))
 
 def connectDB():
-    try:
-        conn = mariadb.connect(
-            host='localhost',
-            port=3306,
-            user='alec',
-            password='USER_PASSWORD')
-
-        cur = conn.cursor()
-        return cur
-
-    except mariadb.Error as e:
-        print(f'Error connecting to the database: {e}')
-        sys.exit(1)
+    conn = mysql.connector.connect(
+        user='alec',
+        password='USER_PASSWORD',
+        host='localhost',
+        database='sys_stats')
+      
+    print('connected!')
+    conn.close()
+    return
 
 
 def getTime():
@@ -81,9 +77,9 @@ async def main(): #NOTE: maybe remove async here?
     dataTask = asyncio.create_task(fetchData())
     data = await dataTask
 
-    cursor = connectDB()
+    connectDB()
     
-    insertRecord(cursor, data)
+    #insertRecord(cursor, data)
     #insert_database(cpu, ram, disk, temp)
     
     
