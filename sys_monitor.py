@@ -24,7 +24,7 @@ async def getDisk():
 async def getTemp():
     """ Gets system CPU temperature """
     try:
-        temp = psutil.sensors_temperatures()
+        temp = psutil.sensors_temperatures()['cpu_thermal'][0].current
         print(f'Temperatures are: {temp}')
         return temp
     except AttributeError:
