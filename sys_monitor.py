@@ -21,37 +21,36 @@ async def fetchData():
     data = (cpu, ram, disk, temp, time)
     return data
 
-def connectDB():
-    conn = mysql.connector.connect(
-        user='alec',
-        password='USER_PASSWORD',
-        host='localhost',
-        database='sys_stats')
+#def connectDB():
+#    conn = mysql.connector.connect(
+#        user='alec',
+#        password='USER_PASSWORD',
+#        host='localhost',
+#        database='sys_stats')
       
-    print('connected!')
-    conn.close()
-    return
+#    print('connected!')
+#    conn.close()
+#    return
 
-'''
-try:
-    with connect(
-        host='localhost',
-        user='alec',
-        password='USER_PASSWORD',
-        database='sys_stats'
+def connectDB(data):
+    try:
+        with connect(
+            host='localhost',
+            user='alec',
+            password='USER_PASSWORD',
+            database='sys_stats'
         ) as connection:
-            #make insert query here?
+            query = "INSERT INTO system (cpu_usage, cpu_temp, ram_usage, disk_usage, date) VALUES (%s, %s, %s, %s, %s)"
+            
             with connection.cursor() as cursor:
-                cursor.execute(insert_system_query)
-except Error as e:
-    print(e)
+                cursor.execute(query, data)
+                connection.commit()
 
-'''
-
-insert_system_query = """
-INSERT INTO system (cpu_usage, cpu_temp, ram_usage, disk_usage, date)
-VALUES (data[0], data[3], data[1], data[2], data[4])
-"""
+                cursor.close()
+                connection.close()
+    except Error as e:
+        print(e)
+ 
 
 def getTime():
     """ Gets current time """
@@ -93,12 +92,8 @@ async def main(): #NOTE: maybe remove async here?
     data = await dataTask
 
     print(f'Data tuple: {data}')
-    connectDB()
-    
-    #insertRecord(cursor, data)
-    #insert_database(cpu, ram, disk, temp)
-    
-    
+    connectDB(data)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
