@@ -1,8 +1,7 @@
-import psutil
 import asyncio
-#TODO: import datetime and include timestamp of when data was recorded also
 import datetime
-#TODO: make database to write info to
+
+import psutil
 import mysql.connector
 
 
@@ -17,7 +16,9 @@ async def fetchData():
     disk = await diskTask
     temp = await tempTask
 
-    data = (cpu, ram, disk, temp)
+    time = getTime()
+
+    data = (cpu, ram, disk, temp, time)
     return data
 
 #def insertRecord(cur, data):
@@ -41,8 +42,9 @@ def connectDB():
 
 def getTime():
     """ Gets current time """
-    date = 0 #get current date
-    return date
+    date = datetime.datetime.now()
+    formatted = date.strftime('%Y-%m-%d %H:%M:%S')
+    return formatted
 
 async def getCPU():
     """ Get usage of the CPU """
@@ -77,6 +79,7 @@ async def main(): #NOTE: maybe remove async here?
     dataTask = asyncio.create_task(fetchData())
     data = await dataTask
 
+    print(f'Data tuple: {data}')
     connectDB()
     
     #insertRecord(cursor, data)
